@@ -13,8 +13,6 @@ const { verifySession } = require("./controllers/user.controller");
 
 const app = express();
 
-app.use(bodyParser.raw({ type: "application/json" })) // Ensures raw body is available for Stripe);
-
 // Parse Str as Json Middleware
 app.use(express.json());
 
@@ -36,7 +34,7 @@ app.use(compression());
 database();
 
 // Webhook
-app.post("/webhook", verifySession);
+app.post("/webhook", bodyParser.raw({ type: "application/json" }), verifySession);
 
 // Routes
 routesMount(app);
