@@ -34,7 +34,7 @@ database()
 
 // Routes
 routesMount(app)
-app.use('/webhook', express.raw({ type: "application/json" },verifySession))
+app.post('/webhook', express.raw({ type: "application/json" },verifySession))
 
 
 // Error Handles
