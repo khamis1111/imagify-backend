@@ -144,9 +144,9 @@ const verifySession = async (req, res) => {
 
   try {
     event = stripe.webhooks.constructEvent(
-      req.body,
+      req.rawBody,
       sig,
-      'whsec_XLWVFHoY9nisCv9f5EVx9sgQ309ZiSPu'
+      "whsec_XLWVFHoY9nisCv9f5EVx9sgQ309ZiSPu"
     );
   } catch (err) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -167,5 +167,6 @@ const verifySession = async (req, res) => {
 
   res.status(201).json({ received: true });
 };
+
 
 module.exports = { register, login, credits, createSession, verifySession };
