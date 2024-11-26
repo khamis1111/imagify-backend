@@ -32,10 +32,11 @@ app.use(compression())
 // Mongoose DB
 database()
 
+// Webhook
+app.post('/webhook', express.raw({ type: "application/json" }),verifySession)
+
 // Routes
 routesMount(app)
-app.post('/webhook', express.raw({ type: "application/json" },verifySession))
-
 
 // Error Handles
 app.all('*', (req, res, next) => {
