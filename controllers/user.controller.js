@@ -152,15 +152,16 @@ const verifySession = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  if (event.type === "checkout.session.completed") {
+  if (event.type === "payment_intent.succeeded") {
     const session = event.data.object;
     const user = await userModel.findOne({
       email: session.customer_email,
     });
 
     await userModel.findByIdAndUpdate(user._id, {
-      creditBalance: user.creditBalance + session.metadata.credits,
+      creditBalance: user.creditBalance + parseInt(session.metadata.credits, 10),
     });
+
     console.log(session.metadata.credits);
   }
 
