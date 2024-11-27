@@ -4,7 +4,7 @@ const xss = require("xss-clean");
 const helmet = require("helmet");
 const cors = require("cors");
 const compression = require("compression");
-const bodyParser = require("body-parser");
+const dotenv = require("dotenv/config.js");
 
 const database = require("./config/database");
 const routesMount = require("./routes");
@@ -14,7 +14,6 @@ const app = express();
 
 // Parse Str as Json Middleware
 app.use(express.json());
-
 // To remove data using Data Sanitize:
 app.use(ExpressMongoSanitize());
 app.use(xss());
@@ -31,8 +30,6 @@ app.use(compression());
 
 // Mongoose DB
 database();
-
-// Webhook
 
 // Routes
 routesMount(app);
@@ -57,7 +54,7 @@ app.use((err, req, res, next) => {
     );
 });
 
-const server = app.listen(3000, () => {
+app.listen(8000, () => {
     console.log("Working....");
 });
 

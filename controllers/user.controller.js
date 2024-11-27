@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const userModel = require("../models/user.model.js");
 const jwt = require("jsonwebtoken");
 const Stripe = require('stripe');
-const stripe = Stripe('sk_test_51NxyGyL0Iy592SMhn2hxhyASVSFdNgIYcPSqzZAxyzJ4RzupTmzhEbHMM1EVUIMJOb8yKj08ufA5hffArdQdwvhW00P2aEyQL3');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -28,7 +28,7 @@ const register = async (req, res) => {
     password: hashPassword,
   });
 
-  const token = jwt.sign({ id: createUser._id }, 'KHAMIS');
+  const token = jwt.sign({ id: createUser._id }, process.env.JWT_SECRET);
 
   res
     .status(200)
@@ -53,7 +53,7 @@ const login = async (req, res) => {
   const isMatch = bcrypt.compareSync(password, user.password);
 
   if (isMatch) {
-    const token = jwt.sign({ id: user._id }, 'KHAMIS');
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     res
       .status(200)
       .json({ status: "success", token, data: { name: user.name } });
@@ -118,15 +118,14 @@ const createSession = async (req, res) => {
           product_data: {
             name: user.name,
             description: desc,
-            // images: ['https://example.com/t-shirt.png'],
           },
         },
         quantity: 1,
       },
     ],
     mode: "payment",
-    success_url: `${req.protocol}://${req.get("host")}/plans?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${req.protocol}://${req.get("host")}/plans`,
+    success_url: `${process.env.FRONTEND_URL}/plans?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.FRONTEND_URL}/plans`,
     customer_email: user.email,
     metadata: { credits },
   });

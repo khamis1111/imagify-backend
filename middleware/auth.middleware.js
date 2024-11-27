@@ -13,7 +13,7 @@ const authToken = (req, res, next) => {
     }
 
     // Verify the token
-    const decoded = jwt.verify(token, 'KHAMIS');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decoded.id;
 
     next();

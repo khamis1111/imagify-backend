@@ -34,7 +34,7 @@ const imageGenerate = async (req, res) => {
       form,
       {
         headers: {
-          "x-api-key": 'cd4fe71e67c773242678f5c1be58eecec64fc5909482412a5614dc7aad1bdbbf42cc75b52274c80f2e31a8e2353704ef',
+          "x-api-key": process.env.CLIPDROP_API,
         },
         responseType: "arraybuffer",
       }
