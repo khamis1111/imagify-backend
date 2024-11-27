@@ -125,47 +125,34 @@ const createSession = async (req, res) => {
       },
     ],
     mode: "payment",
-    success_url: `${req.protocol}://${req.get("host")}/result`,
+    success_url: `${req.protocol}://${req.get("host")}/plans?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${req.protocol}://${req.get("host")}/plans`,
     customer_email: user.email,
-    // client_reference_id: req.params.cartId,
     metadata: { credits },
   });
 
   res.status(200).json({
     status: "success",
-    session,
+    session: session.url,
   });
 };
 
 const verifySession = async (req, res) => {
-  const sig = req.headers["stripe-signature"];
-  let event;
+  const { session_id } = req.body
+  const session = await stripe.checkout.sessions.retrieve(session_id)
 
-  try {
-    event = stripe.webhooks.constructEvent(
-      req.rawBody,
-      sig,
-      "whsec_XLWVFHoY9nisCv9f5EVx9sgQ309ZiSPu"
-    );
-  } catch (err) {
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+  if (session.status === "complete") {
+    const user = await userModel.findOne({ email: session.customer_email })
+    if (!user.payments.includes(session_id)) {
+      await userModel.findByIdAndUpdate(user._id, {
+        $push: { payments: session_id },
+        creditBalance: user.creditBalance + parseInt(session.metadata.credits)
+      })
+      return res.status(201).json({ received: true, session, msg: 'Paid Successfully' });
+    } else {
+      return res.status(401).json({ received: false, msg: 'Is Already Payed!' });
+    }
   }
-
-  if (event.type === "payment_intent.succeeded") {
-    const session = event.data.object;
-    const user = await userModel.findOne({
-      email: session.customer_email,
-    });
-
-    await userModel.findByIdAndUpdate(user._id, {
-      creditBalance: user.creditBalance + parseInt(session.metadata.credits, 10),
-    });
-
-    console.log(session.metadata.credits);
-  }
-
-  res.status(201).json({ received: true });
 };
 
 

@@ -9,21 +9,11 @@ const bodyParser = require("body-parser");
 const database = require("./config/database");
 const routesMount = require("./routes");
 const ApiError = require("./utils/apiError");
-const { verifySession } = require("./controllers/user.controller");
 
 const app = express();
 
-// Parse JSON for all routes except /webhook
-app.use(
-    express.json({
-        verify: (req, res, buf) => {
-            // Allow raw body for Stripe Webhook
-            if (req.originalUrl === "/webhook") {
-                req.rawBody = buf.toString();
-            }
-        },
-    })
-);
+// Parse Str as Json Middleware
+app.use(express.json());
 
 // To remove data using Data Sanitize:
 app.use(ExpressMongoSanitize());
@@ -42,12 +32,7 @@ app.use(compression());
 // Mongoose DB
 database();
 
-// Webhook (use raw body specifically here)
-app.post(
-    "/webhook",
-    bodyParser.raw({ type: "application/json" }),
-    verifySession
-);
+// Webhook
 
 // Routes
 routesMount(app);
